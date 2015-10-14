@@ -1,9 +1,9 @@
 <script src="https://code.createjs.com/easeljs-0.8.1.min.js"></script>
+<img src="eye.png" style="display:none;" />
 <canvas width="500" height="300" id="canvas"><img src="eye.png" /></canvas><br>
 <button id="horror">Increase the horror</button>
 <audio src="static.wav" loop autoplay="true" />
 <audio src="static2.wav" loop autoplay="true" />
-<audio src="whine.wav" id="whine" loop />
 <script>
 var eyes = [];
 var stage = new createjs.Stage("canvas");
@@ -94,8 +94,6 @@ document.getElementById("horror").addEventListener("mouseup", function(e) {
     this.textContent = ["Increase the horror more", "More horror please", "WE REQUIRE ADDITIONAL HORROR", "MOAR HORRORRRR", "Okay less horror now please", "Oops sorry I cannot reduce the horror; we have passed the event horrizon of horror", "No but for real this is maximum horror now", "ERROR: TOO MUCH HORROR", "Please do not press this button again", "", "", "", ""][level];
     
     level++;
-    
-    if(level == 5) { document.getElementById("whine").play(); }
 
     if(level == 6) { addEye(250, 150); }
     
