@@ -1,0 +1,109 @@
+<script src="https://code.createjs.com/easeljs-0.8.1.min.js"></script>
+<canvas width="500" height="300" id="canvas"><img src="eye.png" /></canvas><br>
+<button id="horror">Increase the horror</button>
+<audio src="static.wav" loop autoplay="true" />
+<audio src="static2.wav" loop autoplay="true" />
+<audio src="whine.wav" id="whine" loop />
+<script>
+var eyes = [];
+var stage = new createjs.Stage("canvas");
+
+var t1 = stage.addChild(new createjs.Text("Click me a lot", "20px Arial", "#fff").set({x:250, y:140, textAlign: "center"}));
+
+setTimeout(function() {
+    var t2;
+    stage.addChild(t2 = new createjs.Text("It is a good idea, I promise", "20px Arial", "#fff").set({x:250, y:170, textAlign:"center"}));
+    
+    setTimeout(function() { stage.removeChild(t1); stage.removeChild(t2); }, 2000);
+}, 1500);
+
+createjs.Ticker.addEventListener("tick", tick);
+
+stage.addEventListener("stagemouseup", function(e){
+    console.log(e);
+    if(e.stageX>0 && e.stageY>0) {
+        addEye(e.stageX,e.stageY);
+    }
+});
+
+function addEye(x,y) {
+    console.log(x,y);
+    var eyeContainer = new createjs.Container();
+    eyeContainer.set({x:x,y:y});
+    var eye = new createjs.Shape(
+        new createjs.Graphics().f("#FFF").mt(-20,0).qt(0,-20,20,0).qt(0,20,-20,0));
+    eyeContainer.addChild(eye);
+    
+    if(level > 5) {
+        eyeContainer.addChild(new createjs.Shape(new createjs.Graphics().f("#F00").s("#000").mt(-7,-10).lt(0,-30).lt(7,-10).lt(-7,-10).es().s("#000").dc(0,-30,3).es()
+            .s("#ff0").mt(-7,-10).lt(1,-23).es()
+            .s("#ff0").mt(-3,-10).lt(3,-18).es()
+            .s("#ff0").mt(1,-10).lt(5.5,-14).es()
+        ));
+    }
+    
+    var ball = new createjs.Shape(new createjs.Graphics().f("#000").dc(0,0,7));
+    eyeContainer.addChild(ball);
+    
+    eyes.push({ eye:eyeContainer, ball:ball });
+    stage.addChild(eyeContainer);
+    stage.update();
+}
+
+stage.enableMouseOver(20);
+
+var pointerCoords;
+stage.addEventListener("stagemousemove", function(e) {
+    pointerCoords = { x: e.stageX, y: e.stageY };
+});
+
+function tick() { 
+    for(var i=0; i<eyes.length; i++) {
+        eyes[i].ball.x += unitize(pointerCoords.x - eyes[i].eye.x);
+        eyes[i].ball.x = Math.min(Math.max(eyes[i].ball.x, -6), 6);
+        
+        eyes[i].ball.y += unitize(pointerCoords.y - eyes[i].eye.y);
+        eyes[i].ball.y = Math.min(Math.max(eyes[i].ball.y, -3), 3);
+        
+        if(level > 0 && Math.random() > 0.4) {
+            eyes[i].eye.x += (1 - Math.floor(Math.random()*3)) * 2;
+            eyes[i].eye.y += (1- Math.floor(Math.random()*3)) * 2;
+        }
+        
+        if(level >= 2 && Math.random() > 0.4) {
+            eyes[i].color = eyes[i].color ? (eyes[i].color + 1)%17 : 1;
+            var oldBall = eyes[i].eye.children[2] || eyes[i].eye.children[1];
+            var ball =new createjs.Shape(new createjs.Graphics().f("#"+eyes[i].color.toString(16)+"00").dc(oldBall.x,oldBall.y,7));
+            eyes[i].eye.addChild(ball);
+            eyes[i].eye.removeChild(oldBall);
+            eyes[i].ball = ball;
+        }
+        
+        if(level >= 3 && Math.random() > 0.7) {
+            eyes[i].eye.scaleX += 0.1;
+            eyes[i].eye.scaleY += 0.1;
+        }
+    }
+    stage.update();
+}
+    
+function unitize(val) { return val ? val / Math.abs(val) : val; }
+
+var level = 0;
+document.getElementById("horror").addEventListener("mouseup", function(e) {
+    this.textContent = ["Increase the horror more", "More horror please", "WE REQUIRE ADDITIONAL HORROR", "MOAR HORRORRRR", "Okay less horror now please", "Oops sorry I cannot reduce the horror; we have passed the event horrizon of horror", "No but for real this is maximum horror now", "ERROR: TOO MUCH HORROR", "Please do not press this button again", "", "", "", ""][level];
+    
+    level++;
+    
+    if(level == 5) { document.getElementById("whine").play(); }
+
+    if(level == 6) { addEye(250, 150); }
+    
+    e.stopPropagation();
+});
+</script>
+<style>
+canvas { background-color: black; }
+#horror { font-weight: bold; }
+</style>
+	
